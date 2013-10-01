@@ -1,0 +1,6 @@
+[database]
+hostname=orddb02
+username=kevinqiu
+
+[executor]
+pool_size=5
