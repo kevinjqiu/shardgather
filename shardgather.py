@@ -58,7 +58,7 @@ def configure():
     parser.add_option(
         '-c', '--config', dest='config_file_name',
         help='Config file', metavar='PATH_TO_CONFIG_FILE')
-    options, args = parser.parse_args()
+    return parser.parse_args()
 
 
 def main():
