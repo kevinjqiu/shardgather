@@ -6,7 +6,7 @@ username=kevinqiu
 pool_size=5
 
 [loggers]
-keys=root
+keys=root, shardgather
 
 [handlers]
 keys=console
@@ -17,6 +17,11 @@ keys=console
 [logger_root]
 level=NOTSET
 handlers=console
+
+[logger_shardgather]
+level=DEBUG
+handlers=console
+qualname=shardgather
 
 [handler_console]
 class=StreamHandler

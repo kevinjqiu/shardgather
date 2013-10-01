@@ -1,3 +1,4 @@
+from __future__ import print_function
 import optparse
 import MySQLdb as mdb
 import getpass
@@ -6,18 +7,15 @@ import pprint
 import contextlib
 import logging
 from multiprocessing import Pool
+from logging.config import fileConfig
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('shardgather')
 
 
 HOSTNAME = 'orddb02'
 USERNAME = 'kevinqiu'
 POOLSIZE = 5
-
-
-def log(text):
-    print >> sys.stdout, text
 
 
 def query(conn, sql):
@@ -34,17 +32,17 @@ def get_live_databases(conn):
 
 
 def collect((sql, hostname, username, password, db_name)):
-    log(db_name)
+    log.info(db_name)
     with contextlib.closing(
             mdb.connect(HOSTNAME, USERNAME, password, db=db_name)
     ) as conn:
         try:
             query(conn, "USE %s" % db_name)
             collected = query(conn, sql % dict(db_name=db_name))
-            log('%s:\t%d' % (db_name, len(collected)))
+            log.info("%s:\t%d", db_name, len(collected))
             return db_name, collected
         except mdb.Error as e:
-            log(str(e))
+            log.exception(e)
 
 
 def aggregate(current_aggregated, next):
@@ -64,7 +62,7 @@ def configure():
 def main():
     options, args = configure()
 
-    logging.config.fileConfig(options.config_file_name)
+    fileConfig(options.config_file_name)
 
     if len(args) != 1:
         raise RuntimeError('sql file needed')
@@ -77,8 +75,7 @@ def main():
     sql = sql_file.read()
     sql_file.close()
 
-    log('SQL to be executed for each database:')
-    log(sql)
+    log.info('SQL to be executed for each database:\n%s', sql)
 
     password = getpass.getpass()
     with contextlib.closing(
@@ -87,7 +84,7 @@ def main():
         try:
             live_databases = get_live_databases(conn)
         except mdb.Error as e:
-            log(str(e))
+            log.exception(e)
 
     pool = Pool(POOLSIZE)
 
@@ -96,9 +93,9 @@ def main():
         pool.map(collect, [(sql, HOSTNAME, USERNAME, password, live) for live in live_databases]),
         []
     )
-    log("Total: %d" % len(collected))
-    log("-" * 64)
-    log(pprint.pformat(collected))
+    print("Total: %d" % len(collected))
+    print("-" * 64)
+    print(pprint.pformat(collected))
 
 if __name__ == '__main__':
     main()
