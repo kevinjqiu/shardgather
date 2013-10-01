@@ -4,6 +4,12 @@ import getpass
 import sys
 import pprint
 import contextlib
+import logging
+from multiprocessing import Pool
+
+
+log = logging.getLogger(__name__)
+
 
 HOSTNAME = 'orddb02'
 USERNAME = 'kevinqiu'
@@ -52,11 +58,13 @@ def configure():
     parser.add_option(
         '-c', '--config', dest='config_file_name',
         help='Config file', metavar='PATH_TO_CONFIG_FILE')
-    return parser.parse_args()
+    options, args = parser.parse_args()
 
 
 def main():
     options, args = configure()
+
+    logging.config.fileConfig(options.config_file_name)
 
     if len(args) != 1:
         raise RuntimeError('sql file needed')
@@ -81,7 +89,6 @@ def main():
         except mdb.Error as e:
             log(str(e))
 
-    from multiprocessing import Pool
     pool = Pool(POOLSIZE)
 
     collected = reduce(
