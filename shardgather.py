@@ -1,3 +1,4 @@
+import optparse
 import MySQLdb as mdb
 import getpass
 import sys
@@ -46,14 +47,27 @@ def aggregate(current_aggregated, next):
     return current_aggregated
 
 
+def configure():
+    parser = optparse.OptionParser()
+    parser.add_option(
+        '-c', '--config', dest='config_file_name',
+        help='Config file', metavar='PATH_TO_CONFIG_FILE')
+    options, args = parser.parse_args()
+
+
 def main():
-    if len(sys.argv) != 2:
+    options, args = configure()
+
+    if len(args) != 1:
         raise RuntimeError('sql file needed')
 
-    sql_file = sys.argv[1]
+    if args[0] == '-':
+        sql_file = sys.stdin
+    else:
+        sql_file = open(args[0], 'r')
 
-    with open(sql_file) as f:
-        sql = f.read()
+    sql = sql_file.read()
+    sql_file.close()
 
     log('SQL to be executed for each database:')
     log(sql)
