@@ -5,7 +5,8 @@ import pprint
 
 HOSTNAME = 'orddb02'
 USERNAME = 'kevinqiu'
-POOLSIZE = 50
+POOLSIZE = 5
+
 
 def log(text):
     print >> sys.stdout, text
@@ -19,8 +20,8 @@ def query(conn, sql):
 
 def get_live_databases(conn):
     return [
-      db_name for (db_name,) in query(conn, 'SHOW DATABASES')
-      if db_name.startswith('live')
+        db_name for (db_name,) in query(conn, 'SHOW DATABASES')
+        if db_name.startswith('live')
     ]
 
 
@@ -51,7 +52,7 @@ def main():
     sql_file = sys.argv[1]
 
     with open(sql_file) as f:
-       sql = f.read() 
+        sql = f.read()
 
     log('SQL to be executed for each database:')
     log(sql)
