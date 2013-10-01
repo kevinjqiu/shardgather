@@ -2,6 +2,7 @@ import MySQLdb as mdb
 import getpass
 import sys
 import pprint
+import contextlib
 
 HOSTNAME = 'orddb02'
 USERNAME = 'kevinqiu'
@@ -27,16 +28,16 @@ def get_live_databases(conn):
 
 def collect((sql, hostname, username, password, db_name)):
     log(db_name)
-    conn = mdb.connect(HOSTNAME, USERNAME, password, db=db_name)
-    try:
-        query(conn, "USE %s" % db_name)
-        collected = query(conn, sql % dict(db_name=db_name))
-        log('%s:\t%d' % (db_name, len(collected)))
-        return db_name, collected
-    except mdb.Error as e:
-        log(str(e))
-    finally:
-        conn.close()
+    with contextlib.closing(
+            mdb.connect(HOSTNAME, USERNAME, password, db=db_name)
+    ) as conn:
+        try:
+            query(conn, "USE %s" % db_name)
+            collected = query(conn, sql % dict(db_name=db_name))
+            log('%s:\t%d' % (db_name, len(collected)))
+            return db_name, collected
+        except mdb.Error as e:
+            log(str(e))
 
 
 def aggregate(current_aggregated, next):
@@ -58,13 +59,13 @@ def main():
     log(sql)
 
     password = getpass.getpass()
-    try:
-        conn = mdb.connect(HOSTNAME, USERNAME, password)
-        live_databases = get_live_databases(conn)
-    except mdb.Error as e:
-        log(str(e))
-    finally:
-        conn.close()
+    with contextlib.closing(
+        mdb.connect(HOSTNAME, USERNAME, password)
+    ) as conn:
+        try:
+            live_databases = get_live_databases(conn)
+        except mdb.Error as e:
+            log(str(e))
 
     from multiprocessing import Pool
     pool = Pool(POOLSIZE)
