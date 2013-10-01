@@ -13,14 +13,13 @@ from logging.config import fileConfig
 
 log = logging.getLogger('shardgather')
 
-
-POOLSIZE = 5
+DEFAULT_POOLSIZE = 5
 
 
 def query(conn, sql):
-    cursor = conn.cursor()
-    cursor.execute(sql)
-    return cursor.fetchall()
+    with contextlib.closing(conn.cursor()) as cursor:
+        cursor.execute(sql)
+        return cursor.fetchall()
 
 
 def get_live_databases(conn):
@@ -78,6 +77,8 @@ def main():
     config_parser.read([options.config_file_name])
     hostname = config_parser.get('database', 'hostname')
     username = config_parser.get('database', 'username')
+    pool_size = int(config_parser.get(
+        'executor', 'pool_size', DEFAULT_POOLSIZE))
 
     log.info('SQL to be executed for each database:\n%s', sql)
 
@@ -90,7 +91,7 @@ def main():
         except mdb.Error as e:
             log.exception(e)
 
-    pool = Pool(POOLSIZE)
+    pool = Pool(pool_size)
 
     collected = reduce(
         aggregate,
@@ -100,6 +101,7 @@ def main():
     print("Total: %d" % len(collected))
     print("-" * 64)
     print(pprint.pformat(collected))
+
 
 if __name__ == '__main__':
     main()
