@@ -5,6 +5,7 @@ import getpass
 import sys
 import pprint
 import contextlib
+import ConfigParser
 import logging
 from multiprocessing import Pool
 from logging.config import fileConfig
@@ -13,8 +14,6 @@ from logging.config import fileConfig
 log = logging.getLogger('shardgather')
 
 
-HOSTNAME = 'orddb02'
-USERNAME = 'kevinqiu'
 POOLSIZE = 5
 
 
@@ -34,7 +33,7 @@ def get_live_databases(conn):
 def collect((sql, hostname, username, password, db_name)):
     log.info(db_name)
     with contextlib.closing(
-            mdb.connect(HOSTNAME, USERNAME, password, db=db_name)
+            mdb.connect(hostname, username, password, db=db_name)
     ) as conn:
         try:
             query(conn, "USE %s" % db_name)
@@ -75,11 +74,16 @@ def main():
     sql = sql_file.read()
     sql_file.close()
 
+    config_parser = ConfigParser.ConfigParser()
+    config_parser.read([options.config_file_name])
+    hostname = config_parser.get('database', 'hostname')
+    username = config_parser.get('database', 'username')
+
     log.info('SQL to be executed for each database:\n%s', sql)
 
     password = getpass.getpass()
     with contextlib.closing(
-        mdb.connect(HOSTNAME, USERNAME, password)
+        mdb.connect(hostname, username, password)
     ) as conn:
         try:
             live_databases = get_live_databases(conn)
@@ -90,7 +94,7 @@ def main():
 
     collected = reduce(
         aggregate,
-        pool.map(collect, [(sql, HOSTNAME, USERNAME, password, live) for live in live_databases]),
+        pool.map(collect, [(sql, hostname, username, password, live) for live in live_databases]),
         []
     )
     print("Total: %d" % len(collected))
