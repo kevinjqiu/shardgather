@@ -24,11 +24,17 @@ def query(conn, sql):
         return cursor.fetchall()
 
 
-def get_shard_databases(conn, is_shard_db):
-    return [
-        db_name for (db_name,) in query(conn, 'SHOW DATABASES')
-        if is_shard_db(db_name)
-    ]
+def get_shard_databases(hostname, username, password, is_shard_db):
+    with contextlib.closing(
+        mdb.connect(hostname, username, password)
+    ) as conn:
+        try:
+            return [
+                db_name for (db_name,) in query(conn, 'SHOW DATABASES')
+                if is_shard_db(db_name)
+            ]
+        except mdb.Error as e:
+            log.exception(e)
 
 
 def collect((sql, hostname, username, password, db_name)):
@@ -93,7 +99,8 @@ def main():
         mdb.connect(hostname, username, password)
     ) as conn:
         try:
-            live_databases = get_shard_databases(conn, is_shard_db)
+            shard_databases = get_shard_databases(
+                hostname, username, password, is_shard_db)
         except mdb.Error as e:
             log.exception(e)
 
@@ -101,7 +108,7 @@ def main():
 
     collected = reduce(
         aggregate,
-        pool.map(collect, [(sql, hostname, username, password, live) for live in live_databases]),
+        pool.map(collect, [(sql, hostname, username, password, live) for live in shard_databases]),
         []
     )
     print("Total: %d" % len(collected))
