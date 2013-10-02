@@ -33,8 +33,9 @@ def get_shard_databases(conn, is_shard_db):
 
 def collect((sql, hostname, username, password, db_name)):
     log.info(db_name)
-    with contextlib.closing(
-            mdb.connect(hostname, username, password, db=db_name)
+    with contextlib.closing(mdb.connect(
+        hostname, username, password,
+        db=db_name, cursorclass=mdb.cursors.DictCursor)
     ) as conn:
         try:
             query(conn, "USE %s" % db_name)
