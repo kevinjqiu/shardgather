@@ -1,4 +1,5 @@
 from __future__ import print_function
+import re
 import optparse
 import MySQLdb as mdb
 import getpass
@@ -13,6 +14,7 @@ from logging.config import fileConfig
 
 log = logging.getLogger('shardgather')
 
+
 DEFAULT_POOLSIZE = 5
 
 
@@ -22,10 +24,10 @@ def query(conn, sql):
         return cursor.fetchall()
 
 
-def get_live_databases(conn):
+def get_shard_databases(conn, is_shard_db):
     return [
         db_name for (db_name,) in query(conn, 'SHOW DATABASES')
-        if db_name.startswith('live')
+        if is_shard_db(db_name)
     ]
 
 
@@ -79,6 +81,9 @@ def main():
     username = config_parser.get('database', 'username')
     pool_size = int(config_parser.get(
         'executor', 'pool_size', DEFAULT_POOLSIZE))
+    shard_name_pattern = config_parser.get('database', 'shard_name_pattern')
+
+    is_shard_db = re.compile(shard_name_pattern).search
 
     log.info('SQL to be executed for each database:\n%s', sql)
 
@@ -87,7 +92,7 @@ def main():
         mdb.connect(hostname, username, password)
     ) as conn:
         try:
-            live_databases = get_live_databases(conn)
+            live_databases = get_shard_databases(conn, is_shard_db)
         except mdb.Error as e:
             log.exception(e)
 
