@@ -80,7 +80,23 @@ def render_table(collected):
     return str(pt)
 
 
-render = render_table
+def render_csv(collected):
+    import csv
+    from cStringIO import StringIO
+
+    output = StringIO()
+    writer = csv.writer(output)
+    header = []
+    for live in collected:
+        for entry in collected[live]:
+            if not header:
+                header = ['db_name'] + list(entry.keys())
+                writer.writerow(header)
+            writer.writerow([live] + entry.values())
+    output.seek(0)
+    return output.read()
+
+render = render_csv
 
 
 def configure():
