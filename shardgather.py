@@ -54,8 +54,33 @@ def collect((sql, hostname, username, password, db_name)):
 
 def aggregate(current_aggregated, next):
     db_name, collected = next
-    current_aggregated.extend(collected)
+    current_aggregated[db_name] = collected
     return current_aggregated
+
+
+def render_plain(collected):
+    return '\n'.join(
+        ["Total: %d" % len(collected),
+         "-" * 64,
+         pprint.pformat(collected)])
+
+
+def render_table(collected):
+    if not collected:
+        return "No output"
+
+    from prettytable import PrettyTable
+    pt = PrettyTable()
+
+    for live in collected:
+        for entry in collected[live]:
+            if not pt.field_names:
+                pt.field_names = ['db_name'] + list(entry.keys())
+            pt.add_row([live] + entry.values())
+    return str(pt)
+
+
+render = render_table
 
 
 def configure():
@@ -109,11 +134,9 @@ def main():
     collected = reduce(
         aggregate,
         pool.map(collect, [(sql, hostname, username, password, live) for live in shard_databases]),
-        []
+        {}
     )
-    print("Total: %d" % len(collected))
-    print("-" * 64)
-    print(pprint.pformat(collected))
+    print(render(collected))
 
 
 if __name__ == '__main__':
