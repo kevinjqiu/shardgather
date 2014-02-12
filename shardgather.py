@@ -18,6 +18,9 @@ log = logging.getLogger('shardgather')
 DEFAULT_POOLSIZE = 5
 
 
+DEFAULT_RENDERER = 'csv'
+
+
 def query(conn, sql):
     with contextlib.closing(conn.cursor()) as cursor:
         cursor.execute(sql)
@@ -96,7 +99,12 @@ def render_csv(collected):
     output.seek(0)
     return output.read()
 
-render = render_csv
+
+RENDERERS = {
+    'plain': render_plain,
+    'csv': render_csv,
+    'table': render_table,
+}
 
 
 def configure():
@@ -129,6 +137,8 @@ def main():
     username = config_parser.get('database', 'username')
     pool_size = int(config_parser.get(
         'executor', 'pool_size', DEFAULT_POOLSIZE))
+    renderer = RENDERERS[config_parser.get(
+        'renderer', 'renderer', DEFAULT_RENDERER)]
     shard_name_pattern = config_parser.get('database', 'shard_name_pattern')
 
     is_shard_db = re.compile(shard_name_pattern).search
@@ -152,7 +162,7 @@ def main():
         pool.map(collect, [(sql, hostname, username, password, live) for live in shard_databases]),
         {}
     )
-    print(render(collected))
+    print(renderer(collected))
 
 
 if __name__ == '__main__':
