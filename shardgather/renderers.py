@@ -1,10 +1,9 @@
-import pprint
-
-
 DEFAULT_RENDERER = 'csv'
 
 
 def render_plain(collected):
+    import pprint
+
     return '\n'.join(
         ["Total: %d" % len(collected),
          "-" * 64,
