@@ -102,11 +102,12 @@ def main():
     print("SQL to be executed for each database:\n\n%s" % highlight(sql))
 
     password = getpass.getpass()
-    try:
-        shard_databases = get_shard_databases(
-            hostname, username, password, is_shard_db)
-    except mdb.Error as e:
-        print(str(e))
+    shard_databases = get_shard_databases(
+        hostname, username, password, is_shard_db)
+
+    if not shard_databases:
+        raise RuntimeError(
+            'Cannot get shard databases given the pattern: %s' % shard_name_pattern)
 
     pool = Pool(pool_size)
 
