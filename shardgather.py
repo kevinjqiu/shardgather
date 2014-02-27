@@ -7,12 +7,8 @@ import sys
 import pprint
 import contextlib
 import ConfigParser
-import logging
 from multiprocessing import Pool
 from logging.config import fileConfig
-
-
-log = logging.getLogger('shardgather')
 
 
 DEFAULT_POOLSIZE = 5
@@ -37,11 +33,11 @@ def get_shard_databases(hostname, username, password, is_shard_db):
                 if is_shard_db(db_name)
             ]
         except mdb.Error as e:
-            log.exception(e)
+            print(str(e))
 
 
 def collect((sql, hostname, username, password, db_name)):
-    log.info(db_name)
+    print("Running on %s" % db_name)
     with contextlib.closing(mdb.connect(
         hostname, username, password,
         db=db_name, cursorclass=mdb.cursors.DictCursor)
@@ -49,10 +45,10 @@ def collect((sql, hostname, username, password, db_name)):
         try:
             query(conn, "USE %s" % db_name)
             collected = query(conn, sql % dict(db_name=db_name))
-            log.info("%s:\t%d", db_name, len(collected))
+            print("%d rows returned for %s" % (len(collected), db_name))
             return db_name, collected
         except mdb.Error as e:
-            log.exception(e)
+            print(str(e))
 
 
 def aggregate(current_aggregated, next):
@@ -143,23 +139,25 @@ def main():
 
     is_shard_db = re.compile(shard_name_pattern).search
 
-    log.info('SQL to be executed for each database:\n%s', sql)
+    print("SQL to be executed for each database:\n%s" % sql)
 
     password = getpass.getpass()
     with contextlib.closing(
-        mdb.connect(hostname, username, password)
-    ) as conn:
+            mdb.connect(hostname, username, password)):
         try:
             shard_databases = get_shard_databases(
                 hostname, username, password, is_shard_db)
         except mdb.Error as e:
-            log.exception(e)
+            print(str(e))
 
     pool = Pool(pool_size)
 
     collected = reduce(
         aggregate,
-        pool.map(collect, [(sql, hostname, username, password, live) for live in shard_databases]),
+        pool.map(
+            collect,
+            [(sql, hostname, username, password, live)
+             for live in shard_databases]),
         {}
     )
     print(renderer(collected))
