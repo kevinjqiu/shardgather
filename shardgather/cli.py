@@ -4,17 +4,13 @@ import optparse
 import MySQLdb as mdb
 import getpass
 import sys
-import pprint
 import contextlib
 import ConfigParser
 from multiprocessing import Pool
-from logging.config import fileConfig
+from shardgather.renderers import RENDERERS, DEFAULT_RENDERER
 
 
 DEFAULT_POOLSIZE = 5
-
-
-DEFAULT_RENDERER = 'csv'
 
 
 def query(conn, sql):
@@ -57,52 +53,6 @@ def aggregate(current_aggregated, next):
     return current_aggregated
 
 
-def render_plain(collected):
-    return '\n'.join(
-        ["Total: %d" % len(collected),
-         "-" * 64,
-         pprint.pformat(collected)])
-
-
-def render_table(collected):
-    if not collected:
-        return "No output"
-
-    from prettytable import PrettyTable
-    pt = PrettyTable()
-
-    for live in collected:
-        for entry in collected[live]:
-            if not pt.field_names:
-                pt.field_names = ['db_name'] + list(entry.keys())
-            pt.add_row([live] + entry.values())
-    return str(pt)
-
-
-def render_csv(collected):
-    import csv
-    from cStringIO import StringIO
-
-    output = StringIO()
-    writer = csv.writer(output)
-    header = []
-    for live in collected:
-        for entry in collected[live]:
-            if not header:
-                header = ['db_name'] + list(entry.keys())
-                writer.writerow(header)
-            writer.writerow([live] + entry.values())
-    output.seek(0)
-    return output.read()
-
-
-RENDERERS = {
-    'plain': render_plain,
-    'csv': render_csv,
-    'table': render_table,
-}
-
-
 def configure():
     parser = optparse.OptionParser()
     parser.add_option(
@@ -113,8 +63,6 @@ def configure():
 
 def main():
     options, args = configure()
-
-    fileConfig(options.config_file_name)
 
     if len(args) != 1:
         raise RuntimeError('sql file needed')
