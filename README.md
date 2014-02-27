@@ -30,4 +30,17 @@ pip install shardgather
 Usage
 =====
 
+Generate a sample config
+------------------------
 
+    shardgather sample-config > config.ini
+
+Read queries from a SQL file
+----------------------------
+
+    shardgather -c config.ini query.sql
+
+Read queries from standard input
+--------------------------------
+
+    shardgather -c config.ini -
