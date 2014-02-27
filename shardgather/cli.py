@@ -13,6 +13,14 @@ from shardgather.renderers import RENDERERS, DEFAULT_RENDERER
 DEFAULT_POOLSIZE = 5
 
 
+def highlight(sql):
+    from pygments import highlight as pygments_highlight
+    from pygments.lexers import SqlLexer
+    from pygments.formatters import TerminalFormatter
+
+    return pygments_highlight(sql, SqlLexer(), TerminalFormatter())
+
+
 def query(conn, sql):
     with contextlib.closing(conn.cursor()) as cursor:
         cursor.execute(sql)
@@ -89,7 +97,8 @@ def main():
 
     print("Host: %s" % hostname)
     print("Username: %s" % username)
-    print("SQL to be executed for each database:\n%s" % sql)
+    print("Renderer: %s" % renderer.__name__)
+    print("SQL to be executed for each database:\n\n%s" % highlight(sql))
 
     password = getpass.getpass()
     try:
