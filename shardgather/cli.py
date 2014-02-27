@@ -98,6 +98,7 @@ def main():
     print("Host: %s" % hostname)
     print("Username: %s" % username)
     print("Renderer: %s" % renderer.__name__)
+    print("Executor Pool Size: %s" % pool_size)
     print("SQL to be executed for each database:\n\n%s" % highlight(sql))
 
     password = getpass.getpass()
