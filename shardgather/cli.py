@@ -87,6 +87,8 @@ def main():
 
     is_shard_db = re.compile(shard_name_pattern).search
 
+    print("Host: %s" % hostname)
+    print("Username: %s" % username)
     print("SQL to be executed for each database:\n%s" % sql)
 
     password = getpass.getpass()
