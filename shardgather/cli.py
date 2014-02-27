@@ -92,13 +92,11 @@ def main():
     print("SQL to be executed for each database:\n%s" % sql)
 
     password = getpass.getpass()
-    with contextlib.closing(
-            mdb.connect(hostname, username, password)):
-        try:
-            shard_databases = get_shard_databases(
-                hostname, username, password, is_shard_db)
-        except mdb.Error as e:
-            print(str(e))
+    try:
+        shard_databases = get_shard_databases(
+            hostname, username, password, is_shard_db)
+    except mdb.Error as e:
+        print(str(e))
 
     pool = Pool(pool_size)
 
