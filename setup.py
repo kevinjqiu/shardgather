@@ -1,8 +1,13 @@
+# TODO: http://pypi.python.org/pypi?%3Aaction=list_classifiers
 from setuptools import setup, find_packages
 
 
 version = '0.1'
-# TODO: http://pypi.python.org/pypi?%3Aaction=list_classifiers
+
+
+with open('requirements.txt') as f:
+    dependencies = f.readlines()
+
 
 setup(
     name='shardgather',
