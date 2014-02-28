@@ -41,12 +41,18 @@ def configure():
         '-c', '--config', dest='config_file_name',
         help='Config file', metavar='PATH_TO_CONFIG_FILE')
     parser.add_option(
-        '-g', '--mkcfg', help='Generate sample config')
+        '-g', '--mkcfg', action='store_true',
+        help='Generate sample config')
     return parser.parse_args()
 
 
 def main():
     options, args = configure()
+
+    if options.mkcfg:
+        with open('config.ini.sample') as f:
+            print(f.read())
+        sys.exit(0)
 
     if len(args) != 1:
         raise RuntimeError('sql file needed')
