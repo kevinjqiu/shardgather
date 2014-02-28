@@ -33,7 +33,11 @@ Usage
 Generate a sample config
 ------------------------
 
-    shardgather sample-config > config.ini
+    shardgather -g > config.ini
+
+or
+
+    shardgather --mkcfg > config.ini
 
 Read queries from a SQL file
 ----------------------------
