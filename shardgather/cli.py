@@ -1,4 +1,5 @@
 from __future__ import print_function
+import os
 import re
 import optparse
 import getpass
@@ -50,7 +51,9 @@ def main():
     options, args = configure()
 
     if options.mkcfg:
-        with open('config.ini.sample') as f:
+        config_file = os.path.join(
+            os.path.dirname(__file__), 'config.ini.sample')
+        with open(config_file) as f:
             print(f.read())
         sys.exit(0)
 
