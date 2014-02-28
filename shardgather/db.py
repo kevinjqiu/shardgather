@@ -1,10 +1,12 @@
 import contextlib
 import MySQLdb as mdb
 
+from mdb import cursors
+
 
 def connect(
         hostname, username, password, db_name,
-        cursorclass=mdb.cursors.DictCursor):
+        cursorclass=cursors.DictCursor):
     return contextlib.closing(mdb.connect(
         hostname, username, password,
         db=db_name, cursorclass=cursorclass))
