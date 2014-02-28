@@ -4,17 +4,21 @@ import optparse
 import MySQLdb as mdb
 import getpass
 import sys
-import pprint
 import contextlib
 import ConfigParser
 from multiprocessing import Pool
-from logging.config import fileConfig
+from shardgather.renderers import RENDERERS, DEFAULT_RENDERER
 
 
 DEFAULT_POOLSIZE = 5
 
 
-DEFAULT_RENDERER = 'csv'
+def highlight(sql):
+    from pygments import highlight as pygments_highlight
+    from pygments.lexers import SqlLexer
+    from pygments.formatters import TerminalFormatter
+
+    return pygments_highlight(sql, SqlLexer(), TerminalFormatter())
 
 
 def query(conn, sql):
@@ -57,52 +61,6 @@ def aggregate(current_aggregated, next):
     return current_aggregated
 
 
-def render_plain(collected):
-    return '\n'.join(
-        ["Total: %d" % len(collected),
-         "-" * 64,
-         pprint.pformat(collected)])
-
-
-def render_table(collected):
-    if not collected:
-        return "No output"
-
-    from prettytable import PrettyTable
-    pt = PrettyTable()
-
-    for live in collected:
-        for entry in collected[live]:
-            if not pt.field_names:
-                pt.field_names = ['db_name'] + list(entry.keys())
-            pt.add_row([live] + entry.values())
-    return str(pt)
-
-
-def render_csv(collected):
-    import csv
-    from cStringIO import StringIO
-
-    output = StringIO()
-    writer = csv.writer(output)
-    header = []
-    for live in collected:
-        for entry in collected[live]:
-            if not header:
-                header = ['db_name'] + list(entry.keys())
-                writer.writerow(header)
-            writer.writerow([live] + entry.values())
-    output.seek(0)
-    return output.read()
-
-
-RENDERERS = {
-    'plain': render_plain,
-    'csv': render_csv,
-    'table': render_table,
-}
-
-
 def configure():
     parser = optparse.OptionParser()
     parser.add_option(
@@ -113,8 +71,6 @@ def configure():
 
 def main():
     options, args = configure()
-
-    fileConfig(options.config_file_name)
 
     if len(args) != 1:
         raise RuntimeError('sql file needed')
@@ -139,16 +95,19 @@ def main():
 
     is_shard_db = re.compile(shard_name_pattern).search
 
-    print("SQL to be executed for each database:\n%s" % sql)
+    print("Host: %s" % hostname)
+    print("Username: %s" % username)
+    print("Renderer: %s" % renderer.__name__)
+    print("Executor Pool Size: %s" % pool_size)
+    print("SQL to be executed for each database:\n\n%s" % highlight(sql))
 
     password = getpass.getpass()
-    with contextlib.closing(
-            mdb.connect(hostname, username, password)):
-        try:
-            shard_databases = get_shard_databases(
-                hostname, username, password, is_shard_db)
-        except mdb.Error as e:
-            print(str(e))
+    shard_databases = get_shard_databases(
+        hostname, username, password, is_shard_db)
+
+    if not shard_databases:
+        raise RuntimeError(
+            'Cannot get shard databases given the pattern: %s' % shard_name_pattern)
 
     pool = Pool(pool_size)
 
@@ -161,7 +120,3 @@ def main():
         {}
     )
     print(renderer(collected))
-
-
-if __name__ == '__main__':
-    main()
