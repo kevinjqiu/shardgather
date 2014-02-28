@@ -1,7 +1,7 @@
 import contextlib
 import MySQLdb as mdb
 
-from mdb import cursors
+from MySQLdb import cursors
 
 
 def connect(
