@@ -1,13 +1,13 @@
 from __future__ import print_function
 import re
 import optparse
-import MySQLdb as mdb
 import getpass
 import sys
 import contextlib
 import ConfigParser
 from multiprocessing import Pool
 from shardgather.renderers import RENDERERS, DEFAULT_RENDERER
+from shardgather.db import query, get_shard_databases, connect
 
 
 DEFAULT_POOLSIZE = 5
@@ -21,38 +21,13 @@ def highlight(sql):
     return pygments_highlight(sql, SqlLexer(), TerminalFormatter())
 
 
-def query(conn, sql):
-    with contextlib.closing(conn.cursor()) as cursor:
-        cursor.execute(sql)
-        return cursor.fetchall()
-
-
-def get_shard_databases(hostname, username, password, is_shard_db):
-    with contextlib.closing(
-        mdb.connect(hostname, username, password)
-    ) as conn:
-        try:
-            return [
-                db_name for (db_name,) in query(conn, 'SHOW DATABASES')
-                if is_shard_db(db_name)
-            ]
-        except mdb.Error as e:
-            print(str(e))
-
-
 def collect((sql, hostname, username, password, db_name)):
     print("Running on %s" % db_name)
-    with contextlib.closing(mdb.connect(
-        hostname, username, password,
-        db=db_name, cursorclass=mdb.cursors.DictCursor)
-    ) as conn:
-        try:
-            query(conn, "USE %s" % db_name)
-            collected = query(conn, sql % dict(db_name=db_name))
-            print("%d rows returned for %s" % (len(collected), db_name))
-            return db_name, collected
-        except mdb.Error as e:
-            print(str(e))
+    with connect(hostname, username, password, db_name=db_name) as conn:
+        query(conn, "USE %s" % db_name)
+        collected = query(conn, sql % dict(db_name=db_name))
+        print("%d rows returned for %s" % (len(collected), db_name))
+        return db_name, collected
 
 
 def aggregate(current_aggregated, next):
@@ -106,8 +81,8 @@ def main():
         hostname, username, password, is_shard_db)
 
     if not shard_databases:
-        raise RuntimeError(
-            'Cannot get shard databases given the pattern: %s' % shard_name_pattern)
+        raise RuntimeError('Cannot get shard databases given the pattern: %s'
+                           % shard_name_pattern)
 
     pool = Pool(pool_size)
 
