@@ -7,7 +7,7 @@ def connect(
         cursorclass=mdb.cursors.DictCursor):
     return contextlib.closing(mdb.connect(
         hostname, username, password,
-        db=db_name, cursorclass=cursorclass)
+        db=db_name, cursorclass=cursorclass))
 
 
 def query(conn, sql):

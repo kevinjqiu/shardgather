@@ -3,7 +3,6 @@ import re
 import optparse
 import getpass
 import sys
-import contextlib
 import ConfigParser
 from multiprocessing import Pool
 from shardgather.renderers import RENDERERS, DEFAULT_RENDERER
@@ -41,6 +40,8 @@ def configure():
     parser.add_option(
         '-c', '--config', dest='config_file_name',
         help='Config file', metavar='PATH_TO_CONFIG_FILE')
+    parser.add_option(
+        '-g', '--mkcfg', help='Generate sample config')
     return parser.parse_args()
 
 
