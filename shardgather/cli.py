@@ -42,6 +42,11 @@ def configure():
         '-c', '--config', dest='config_file_name',
         help='Config file', metavar='PATH_TO_CONFIG_FILE')
     parser.add_option(
+        '-i', '--interactive', action='store_true',
+        help=(
+            'Drop into an interactive shell instead of rendering'
+            'the result.'))
+    parser.add_option(
         '-g', '--mkcfg', action='store_true',
         help='Generate sample config')
     return parser.parse_args()
@@ -84,6 +89,7 @@ def main():
     print("Username: %s" % username)
     print("Renderer: %s" % renderer.__name__)
     print("Executor Pool Size: %s" % pool_size)
+    print("Interactive mode: %s" % options.interactive)
     print("SQL to be executed for each database:\n\n%s" % highlight(sql))
 
     password = getpass.getpass()
@@ -104,4 +110,9 @@ def main():
              for live in shard_databases]),
         {}
     )
+
+    if options.interactive:
+        import IPython
+        IPython.embed()
+
     print(renderer(collected))
