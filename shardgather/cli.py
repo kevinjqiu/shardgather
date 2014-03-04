@@ -112,9 +112,9 @@ def main():
     )
 
     if options.interactive:
-        import IPython
-        IPython.embed()
         print("Available variables:")
         print("  collected - the collected data")
+        import IPython
+        IPython.embed()
 
     print(renderer(collected))
