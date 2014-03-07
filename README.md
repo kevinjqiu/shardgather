@@ -15,13 +15,17 @@ Installation
 
 - (optional) Create a virtual environment:
 
+```bash
+virtualenv shardgather-env
+source shardgather-env/bin/activate
+```
+
 From source
 -----------
 
 ```bash
 git clone https://github.com/kevinjqiu/shardgather.git
 cd shardgather
-# activate virtualenv if you are using it
 pip install -r requirements.txt
 python setup.py install
 ```
@@ -29,13 +33,6 @@ python setup.py install
 
 From PyPI (not yet)
 -------------------
-
-```bash
-virtualenv shardgather-env
-source shardgather-env/bin/activate
-```
-
-- Install from PyPI:
 
 ```python
 pip install shardgather
