@@ -13,6 +13,16 @@ from shardgather.db import query, get_shard_databases, connect
 DEFAULT_POOLSIZE = 5
 
 
+def print(s):
+    sys.stderr.write(s)
+    sys.stderr.write('\n')
+
+
+def render(s):
+    sys.stdout.write(s)
+    sys.stdout.write('\n')
+
+
 def highlight(sql):
     from pygments import highlight as pygments_highlight
     from pygments.lexers import SqlLexer
@@ -117,4 +127,4 @@ def main():
         import IPython
         IPython.embed()
 
-    print(renderer(collected))
+    render(renderer(collected))
