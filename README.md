@@ -60,3 +60,5 @@ Read queries from standard input
 --------------------------------
 
     shardgather -c config.ini -
+
+Press Ctrl+D to terminate the input.
