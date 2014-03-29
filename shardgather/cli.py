@@ -7,7 +7,7 @@ import sys
 import ConfigParser
 from multiprocessing import Pool
 from shardgather.renderers import RENDERERS, DEFAULT_RENDERER
-from shardgather.db import query, get_shard_databases, connect
+# from shardgather.db import query, get_shard_databases, connect
 
 
 DEFAULT_POOLSIZE = 5
@@ -67,7 +67,7 @@ def main():
 
     if options.mkcfg:
         config_file = os.path.join(
-            os.path.dirname(__file__), 'config.ini.sample')
+            os.path.dirname(__file__), 'config.ini.sample.py')
         with open(config_file) as f:
             print(f.read())
         sys.exit(0)
