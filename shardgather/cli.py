@@ -7,7 +7,7 @@ import sys
 import ConfigParser
 from multiprocessing import Pool
 from shardgather.renderers import RENDERERS, DEFAULT_RENDERER
-# from shardgather.db import query, get_shard_databases, connect
+from shardgather.db import query, get_shard_databases, connect
 
 
 DEFAULT_POOLSIZE = 5
