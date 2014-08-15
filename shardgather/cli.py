@@ -52,6 +52,9 @@ def configure():
         '-c', '--config', dest='config_file_name',
         help='Config file', metavar='PATH_TO_CONFIG_FILE')
     parser.add_option(
+        '-p', '--pwdfile', dest='pwdfile',
+        help='File containing database password', metavar='PATH_TO_PWD_FILE')
+    parser.add_option(
         '-i', '--interactive', action='store_true',
         help=(
             'Drop into an interactive shell instead of rendering'
@@ -71,6 +74,10 @@ def main():
         with open(config_file) as f:
             print(f.read())
         sys.exit(0)
+
+    if options.pwdfile:
+        with open(options.pwdfile) as f:
+            password = f.read().rstrip()
 
     if len(args) != 1:
         raise RuntimeError('sql file needed')
@@ -102,7 +109,8 @@ def main():
     print("Interactive mode: %s" % options.interactive)
     print("SQL to be executed for each database:\n\n%s" % highlight(sql))
 
-    password = getpass.getpass()
+    if not password:
+        password = getpass.getpass()
     shard_databases = get_shard_databases(
         hostname, username, password, is_shard_db)
 
