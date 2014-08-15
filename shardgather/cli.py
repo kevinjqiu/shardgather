@@ -70,7 +70,7 @@ def main():
 
     if options.mkcfg:
         config_file = os.path.join(
-            os.path.dirname(__file__), 'config.ini.sample')
+            os.path.dirname(__file__), 'config.ini.sample.py')
         with open(config_file) as f:
             print(f.read())
         sys.exit(0)
