@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 
-version = '0.1'
+version = '0.1.2'
 
 
 with open('requirements.txt') as f:
@@ -17,8 +17,8 @@ setup(
     classifiers=[],
     keywords='cli',
     author='Kevin Jing Qiu',
-    author_email='kevin.jing.qiu@gmail.com',
-    url='',
+    author_email='kevin@idempotent.ca',
+    url='https://github.com/kevinjqiu/shardgather',
     license='Apache',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     include_package_data=True,
