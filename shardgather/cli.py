@@ -75,6 +75,7 @@ def main():
             print(f.read())
         sys.exit(0)
 
+    password = None
     if options.pwdfile:
         with open(options.pwdfile) as f:
             password = f.read().rstrip()

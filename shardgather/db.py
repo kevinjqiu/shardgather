@@ -1,6 +1,8 @@
 import contextlib
-import MySQLdb as mdb
+import pymysql
+pymysql.install_as_MySQLdb()
 
+import MySQLdb as mdb
 from MySQLdb import cursors
 
 
