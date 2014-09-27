@@ -31,8 +31,8 @@ python setup.py install
 ```
 
 
-From PyPI (not yet)
--------------------
+From PyPI
+---------
 
 ```python
 pip install shardgather
