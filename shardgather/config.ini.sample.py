@@ -1,6 +1,6 @@
 [database]
-hostname=orddb02
-username=kevinqiu
+hostname=localhost
+username=user
 shard_name_pattern=live.*
 
 [executor]
