@@ -5,9 +5,9 @@ import optparse
 import getpass
 import sys
 import ConfigParser
-from multiprocessing import Pool
+from multiprocessing import Pool, current_process
 from shardgather.renderers import RENDERERS, DEFAULT_RENDERER
-from shardgather.db import query, get_shard_databases, connect
+from shardgather.db import query, get_shard_databases, get_connection
 
 
 DEFAULT_POOLSIZE = 5
@@ -31,13 +31,21 @@ def highlight(sql):
     return pygments_highlight(sql, SqlLexer(), TerminalFormatter())
 
 
+CONNECTIONS = {}
+
+
 def collect((sql, hostname, username, password, db_name)):
     print("Running on %s" % db_name)
-    with connect(hostname, username, password, db_name=db_name) as conn:
-        query(conn, "USE %s" % db_name)
-        collected = query(conn, sql % dict(db_name=db_name))
-        print("%d rows returned for %s" % (len(collected), db_name))
-        return db_name, collected
+    current_process_name = current_process().name
+    if current_process_name not in CONNECTIONS:
+        print("Creating a new connection for worker %s" % current_process_name)
+        CONNECTIONS[current_process_name] = get_connection(
+            hostname, username, password)
+    conn = CONNECTIONS[current_process_name]
+    query(conn, "USE %s" % db_name)
+    collected = query(conn, sql % dict(db_name=db_name))
+    print("%d rows returned for %s" % (len(collected), db_name))
+    return db_name, collected
 
 
 def aggregate(current_aggregated, next):
@@ -129,19 +137,23 @@ def main():
 
     pool = Pool(pool_size)
 
-    collected = reduce(
-        aggregate,
-        pool.map(
-            collect,
-            [(sql, hostname, username, password, live)
-             for live in shard_databases]),
-        {}
-    )
+    try:
+        collected = reduce(
+            aggregate,
+            pool.map(
+                collect,
+                [(sql, hostname, username, password, live)
+                 for live in shard_databases]),
+            {}
+        )
 
-    if options.interactive:
-        print("Available variables:")
-        print("  collected - the collected data")
-        import IPython
-        IPython.embed()
+        if options.interactive:
+            print("Available variables:")
+            print("  collected - the collected data")
+            import IPython
+            IPython.embed()
 
-    render(renderer(collected))
+        render(renderer(collected))
+    finally:
+        for _, conn in CONNECTIONS.iteritems():
+            conn.close()
