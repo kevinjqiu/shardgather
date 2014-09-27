@@ -7,11 +7,11 @@ from MySQLdb import cursors
 
 
 def connect(
-        hostname, username, password, db_name,
+        hostname, username, password,
         cursorclass=cursors.DictCursor):
     return contextlib.closing(mdb.connect(
         hostname, username, password,
-        db=db_name, cursorclass=cursorclass))
+        cursorclass=cursorclass))
 
 
 def query(conn, sql):

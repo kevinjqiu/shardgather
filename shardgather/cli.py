@@ -33,7 +33,7 @@ def highlight(sql):
 
 def collect((sql, hostname, username, password, db_name)):
     print("Running on %s" % db_name)
-    with connect(hostname, username, password, db_name=db_name) as conn:
+    with connect(hostname, username, password) as conn:
         query(conn, "USE %s" % db_name)
         collected = query(conn, sql % dict(db_name=db_name))
         print("%d rows returned for %s" % (len(collected), db_name))
