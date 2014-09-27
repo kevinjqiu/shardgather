@@ -137,19 +137,23 @@ def main():
 
     pool = Pool(pool_size)
 
-    collected = reduce(
-        aggregate,
-        pool.map(
-            collect,
-            [(sql, hostname, username, password, live)
-             for live in shard_databases]),
-        {}
-    )
+    try:
+        collected = reduce(
+            aggregate,
+            pool.map(
+                collect,
+                [(sql, hostname, username, password, live)
+                 for live in shard_databases]),
+            {}
+        )
 
-    if options.interactive:
-        print("Available variables:")
-        print("  collected - the collected data")
-        import IPython
-        IPython.embed()
+        if options.interactive:
+            print("Available variables:")
+            print("  collected - the collected data")
+            import IPython
+            IPython.embed()
 
-    render(renderer(collected))
+        render(renderer(collected))
+    finally:
+        for _, conn in CONNECTIONS.iteritems():
+            conn.close()

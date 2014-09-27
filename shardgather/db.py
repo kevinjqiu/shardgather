@@ -6,14 +6,6 @@ import MySQLdb as mdb
 from MySQLdb import cursors
 
 
-# def connect(
-#         hostname, username, password,
-#         cursorclass=cursors.DictCursor):
-#     return contextlib.closing(mdb.connect(
-#         hostname, username, password,
-#         cursorclass=cursorclass))
-
-
 def get_connection(
         hostname, username, password, cursorclass=cursors.DictCursor):
     return mdb.connect(hostname, username, password, cursorclass=cursorclass)
