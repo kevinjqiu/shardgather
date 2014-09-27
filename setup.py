@@ -6,7 +6,7 @@ version = '0.1.2'
 
 
 with open('requirements.txt') as f:
-    dependencies = f.readlines()
+    dependencies = map(str.strip, f.readlines())
 
 
 setup(
@@ -23,7 +23,7 @@ setup(
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     include_package_data=True,
     zip_safe=False,
-    install_requires=[],
+    install_requires=dependencies,
     entry_points={
         'console_scripts': [
             "shardgather=shardgather.cli:main"
