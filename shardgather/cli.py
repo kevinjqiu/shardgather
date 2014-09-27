@@ -13,9 +13,9 @@ from shardgather.db import query, get_shard_databases, connect
 DEFAULT_POOLSIZE = 5
 
 
-def print(s):
-    sys.stderr.write(s)
-    sys.stderr.write('\n')
+def print(s, out=sys.stderr):
+    out.write(s)
+    out.write('\n')
 
 
 def render(s):
@@ -65,6 +65,14 @@ def configure():
     return parser.parse_args()
 
 
+def get_password(options):
+    if options.pwdfile:
+        with open(options.pwdfile) as f:
+            return f.read().rstrip()
+
+    return getpass.getpass()
+
+
 def main():
     options, args = configure()
 
@@ -72,7 +80,7 @@ def main():
         config_file = os.path.join(
             os.path.dirname(__file__), 'config.ini.sample.py')
         with open(config_file) as f:
-            print(f.read())
+            print(f.read(), out=sys.stdout)
         sys.exit(0)
 
     password = None
@@ -110,8 +118,8 @@ def main():
     print("Interactive mode: %s" % options.interactive)
     print("SQL to be executed for each database:\n\n%s" % highlight(sql))
 
-    if not password:
-        password = getpass.getpass()
+    password = get_password(options)
+
     shard_databases = get_shard_databases(
         hostname, username, password, is_shard_db)
 
