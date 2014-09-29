@@ -20,12 +20,12 @@ Features
 
 * Executing SQL query against sharded databases (databases of of the same schema set)
 * Render the result in different formats:
-  - table
-  - csv
-  - human
+  * table
+  * csv
+  * human
 * Interactive mode allows you manipulate the gathered data in a Python shell
 
 Installation
 ------------
 
-See ``<docs/installation.rst>``
+See `installation.rst`
