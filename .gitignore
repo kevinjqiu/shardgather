@@ -43,3 +43,5 @@ output/*/index.html
 docs/_build
 .ropeproject/
 .passwd
+env/
+config.ini
