@@ -16,10 +16,12 @@ if sys.argv[-1] == 'publish':
 
 readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
+requirements = map(str.strip, open('requirements.txt').readlines())
+version = '1.0.0'
 
 setup(
     name='shardgather',
-    version='1.0.0',
+    version=version,
     description='A tool for executing SQL queries against sharded databases',
     long_description=readme + '\n\n' + history,
     author='Kevin Jing Qiu',
@@ -30,7 +32,7 @@ setup(
     ],
     package_dir={'shardgather': 'shardgather'},
     include_package_data=True,
-    install_requires=map(str.strip, open('requirements.txt').readlines()),
+    install_requires=requirements,
     license="BSD",
     zip_safe=False,
     keywords='shardgather',

@@ -12,12 +12,15 @@ shardgather
         :target: https://crate.io/packages/shardgather?version=latest
 
 
-A tool for executing SQ
-
 * Free software: BSD license
 * Documentation: http://shardgather.rtfd.org.
 
 Features
 --------
 
-* TODO
+* Executing SQL query against sharded databases (databases of of the same schema set)
+* Render the result in different formats:
+  - table
+  - csv
+  - human
+* Interactive mode allows you manipulate the gathered data in a Python shell
