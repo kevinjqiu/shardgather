@@ -28,4 +28,10 @@ Features
 Installation
 ------------
 
-See `installation.rst`
+See :doc:`installation.rst`
+
+
+Usage
+-----
+
+See :doc:`usage.rst`
