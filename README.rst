@@ -24,3 +24,8 @@ Features
   - csv
   - human
 * Interactive mode allows you manipulate the gathered data in a Python shell
+
+Installation
+------------
+
+See ``<docs/installation.rst>``
