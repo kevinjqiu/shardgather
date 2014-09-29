@@ -35,7 +35,7 @@ setup(
     zip_safe=False,
     keywords='shardgather',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
@@ -47,7 +47,7 @@ setup(
     ],
     test_suite='tests',
     entry_points={
-        'console_script': [
+        'console_scripts': [
             'shardgather=shardgather.cli:main'
         ]
     },
