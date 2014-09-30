@@ -28,7 +28,7 @@ lint:
 	flake8 shardgather tests
 
 test:
-	python setup.py test
+	py.test tests/
 
 test-all:
 	tox
