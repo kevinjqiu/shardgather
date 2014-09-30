@@ -5,6 +5,7 @@ import os
 import sys
 
 
+from shardgather import __version__
 try:
     from setuptools import setup
 except ImportError:
@@ -17,11 +18,10 @@ if sys.argv[-1] == 'publish':
 readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 requirements = map(str.strip, open('requirements.txt').readlines())
-version = '1.0.0'
 
 setup(
     name='shardgather',
-    version=version,
+    version=__version__,
     description='A tool for executing SQL queries against sharded databases',
     long_description=readme + '\n\n' + history,
     author='Kevin Jing Qiu',
