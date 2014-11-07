@@ -3,4 +3,4 @@
 
 __author__ = 'Kevin Jing Qiu'
 __email__ = 'kevin@idempotent.ca'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
