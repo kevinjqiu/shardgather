@@ -86,7 +86,7 @@ def main():
 
     if options.mkcfg:
         config_file = os.path.join(
-            os.path.dirname(__file__), 'config.ini.sample.py')
+            os.path.dirname(__file__), 'config.ini.sample')
         with open(config_file) as f:
             print(f.read(), out=sys.stdout)
         sys.exit(0)
