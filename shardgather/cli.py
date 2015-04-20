@@ -43,7 +43,7 @@ def collect((sql, hostname, username, password, db_name)):
             hostname, username, password)
     conn = CONNECTIONS[current_process_name]
     query(conn, "USE %s" % db_name)
-    collected = query(conn, sql % dict(db_name=db_name))
+    collected = query(conn, sql.format(db_name=db_name))
     print("%d rows returned for %s" % (len(collected), db_name))
     return db_name, collected
 
